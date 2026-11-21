@@ -1,5 +1,13 @@
 # 红果短剧项目规则
 
+## 7.8 下载管理重负载修复（2026-11-21）
+
+- 用户要求处理 GitHub 最新 #176 后发布新版本；本版从公开 7.7 增加 0.1，内部 7.8.0、桌面构建 7.8.1。
+- 下载管理先返回轻量任务快照，再串行核验文件；周期刷新不得重叠，显式核验结果不得被后续快速刷新覆盖。
+- 启动时已有完整文件身份的任务不逐个重读；文件身份、路径冲突、播放及删除前的安全检查保留。
+- 四平台同源发行、双Mac本轮重新签名／公证／装订、Windows与Linux必要真实素材验收及远端摘要核对齐备后才公开 Latest；Docker、TV和手机不在发行附件内。
+- 7.8已于2026-11-21 13:58:45（Asia/Shanghai）正式公开并设Latest，冻结源码`e46820ba2b9d224cfbc638f6926ae2ce4421db70`，Release ID `453468377`；23份附件、远端SHA256及全部匿名入口已核对。
+
 ## 对外回复方式（2026-11-07起）
 
 - 本项目后续对外回复、GitHub Issue／PR 评论不得携带“使用 ChatGPT Codex 连接器”等连接器提示或署名。
@@ -19,6 +27,19 @@
 - 公开7.6、内部7.6.0；双Mac、Windows x64、Linux x64 AppImage同源一次发行，不附Docker、TV或手机。
 - 7.6已于2026-11-18 18:17:30（Asia/Shanghai）公开并设Latest，冻结源码`6a3df3b0b03e8a63589a73e375e9058f181930e8`，23份附件及匿名下载入口已核对；最终回执见`docs/release-7.6.md`。
 - 不沿用7.5构建、签名、公证或平台验收。
+
+## 7.7 播放取源正式发行（2026-11-20）
+
+- 内部7.7.0、桌面构建7.7.1；双Mac、Windows x64、Linux x64 AppImage同源一次发行，不附Docker、TV或手机。
+- `video_tab`恢复改用 player 签名族的无正文 V5 GET；保留身份、分集、画质、地址、加密和备用片源校验。
+- 7.7已于2026-11-20 15:08:15（Asia/Shanghai）正式公开并设Latest，冻结源码`92df757ed7be8ea658ee274a6a429b77f49e54e8`，23份附件及匿名入口已核对；双Mac新签名、公证、装订，Windows GitHub虚拟机与Linux原生实测通过。
+
+## 后续发行依赖审计（2026-11-18记录）
+
+- 7.6的`npm audit`报告17个受影响包节点（7 moderate、10 high），均在开发、测试或构建工具链；`npm audit --omit=dev`为0，不为这些告警单独热修7.6。
+- 下次发行前重新运行`npm audit`；先运行不带`--force`的`npm audit fix`，再逐项评估剩余Vite、Electron Builder等升级并重新构建、验证四平台产物。
+- 不直接运行`npm audit fix --force`：当前锁文件会被评估为将`electron-builder`从26.15.3降到24.13.3，并把Vite升到8、esbuild升到0.28，存在peer冲突和构建回归风险。
+- 不为`src/localLibrary.js`的Node模块警告在根`package.json`添加`"type": "module"`；主进程、preload和native代码仍为CommonJS。若要消除测试警告，另行按`.mjs`路径改名并跑相关测试。
 
 ## 视频测试素材与声音
 
