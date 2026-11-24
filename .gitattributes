@@ -1,0 +1,2 @@
+# Hongguo Drama 8.2: release target source.
+scripts/sdk-playback/vendor/** -whitespace

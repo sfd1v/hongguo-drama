@@ -18,6 +18,10 @@ function modelStage(config) {
         assert.equal(url.hostname, 'api5-normal-sinfonlineb.fqnovel.com');
         return 'legacy';
     }
+    if (url.pathname === '/novel/player/video_model/v1/') {
+        assert.ok(['api5-normal-sinfonlinea.fqnovel.com', 'api5-normal-sinfonlinec.fqnovel.com'].includes(url.hostname));
+        return url.hostname.includes('sinfonlinea') ? 'model-a' : 'model-c';
+    }
     assert.equal(url.pathname, '/novel/player/multi_video_model/player/v1');
     assert.ok(['api5-normal-sinfonlineb.fqnovel.com', 'api5-normal-sinfonlinea.fqnovel.com'].includes(url.hostname));
     return url.hostname === 'api5-normal-sinfonlineb.fqnovel.com' ? 'primary' : 'alternate';
@@ -56,7 +60,11 @@ test('empty playback responses keep their classification through the public sour
     let registrations = 0, models = 0;
     const stages = [];
     const native = loadNative({ axios: async config => {
-        if (new URL(config.url).pathname.includes('device_register')) {
+        const pathname = new URL(config.url).pathname;
+        if (pathname === '/novel/player/multi_video_model/preload/v1') {
+            return { status: 200, headers: {}, data: '' };
+        }
+        if (pathname.includes('device_register')) {
             registrations++;
             stages.push(registrations === 1 ? 'registration' : 'renewal');
             return response({ device_id: String(100 + registrations), install_id: '456' });
@@ -72,12 +80,23 @@ test('empty playback responses keep their classification through the public sour
     assert.match(result.error, /所选清晰度 1080p，未降级/);
     assert.match(result.error, /空响应.*原因尚未确认/);
     assert.doesNotMatch(JSON.stringify(result), /签名|鉴权|请检查网络|PRIVATE_SENTINEL/);
-    assert.equal(registrations, 6, 'three rounds each use an initial identity and one renewal');
-    assert.equal(models, 12, 'each anonymous round tries two v5 hosts, video_tab and legacy');
+    assert.equal(registrations, 2, 'empty routes rotate identity once');
+    assert.equal(models, 24, 'six routes each probe twice for two identities');
     assert.deepEqual(stages, [
-        'registration', 'primary', 'alternate', 'video-tab', 'renewal', 'legacy',
-        'renewal', 'primary', 'alternate', 'video-tab', 'renewal', 'legacy',
-        'renewal', 'primary', 'alternate', 'video-tab', 'renewal', 'legacy',
+        'registration',
+        'video-tab', 'video-tab',
+        'primary', 'primary',
+        'alternate', 'alternate',
+        'model-a', 'model-a',
+        'model-c', 'model-c',
+        'legacy', 'legacy',
+        'renewal',
+        'video-tab', 'video-tab',
+        'primary', 'primary',
+        'alternate', 'alternate',
+        'model-a', 'model-a',
+        'model-c', 'model-c',
+        'legacy', 'legacy',
     ]);
 });
 
@@ -251,14 +270,18 @@ test('canceling one lookup leaves another lookup and shared search/account regis
     await failed;
     assert.equal(independentSignal.aborted, false);
     assert.equal(await api.getPlaybackDevice(() => assert.fail('must keep shared registration')), shared);
-    assert.equal(calls, 5);
+    assert.equal(calls, 3);
 });
 
-test('registration and models retain separate 8s/12s budgets across renewal', async () => {
+test('registration and models retain separate 8s/12s budgets across route recovery', async () => {
     let now = Date.now(), registrations = 0;
     const stages = [];
     const api = app(async config => {
-        if (new URL(config.url).pathname.includes('device_register')) {
+        const pathname = new URL(config.url).pathname;
+        if (pathname === '/novel/player/multi_video_model/preload/v1') {
+            return { status: 200, headers: {}, data: '' };
+        }
+        if (pathname.includes('device_register')) {
             registrations++;
             stages.push(registrations === 1 ? 'registration' : 'renewal');
             assert.ok(config.timeout > 0 && config.timeout <= 8000);
@@ -268,27 +291,22 @@ test('registration and models retain separate 8s/12s budgets across renewal', as
         }
         const stage = modelStage(config);
         stages.push(stage);
-        if (stage === 'primary') {
-            assert.equal(config.timeout, 12000);
-            now += 250;
-            return { status: 200, headers: {}, data: '' };
-        }
-        if (stage === 'alternate') {
-            assert.equal(config.timeout, 11750, 'alternate shares the original model deadline');
-            now += 350;
-            return { status: 200, headers: {}, data: '' };
-        }
-        if (stage === 'video-tab') {
-            assert.equal(config.timeout, 11400, 'video_tab shares the original model deadline');
-            return { status: 200, headers: {}, data: '' };
-        }
-        assert.equal(stage, 'legacy');
-        assert.equal(config.timeout, 10400, 'renewal cannot reset the original model deadline');
-        return playResponse();
+        assert.ok(config.timeout > 0 && config.timeout <= 12000);
+        if (stage === 'legacy') return playResponse();
+        now += 250;
+        return { status: 200, headers: {}, data: '' };
     }, { now: () => now });
     assert.equal((await api.fetchAppPlayUrl('11')).source, 'app');
-    assert.equal(registrations, 2);
-    assert.deepEqual(stages, ['registration', 'primary', 'alternate', 'video-tab', 'renewal', 'legacy']);
+    assert.equal(registrations, 1);
+    assert.deepEqual(stages, [
+        'registration',
+        'video-tab', 'video-tab',
+        'primary', 'primary',
+        'alternate', 'alternate',
+        'model-a', 'model-a',
+        'model-c', 'model-c',
+        'legacy',
+    ]);
 });
 
 test('cancellation mapping preserves ERR_CANCELED instead of retryable NETWORK_ERROR', () => {
@@ -319,7 +337,7 @@ test('internal registration timeout aborts its transport and retains failure coo
     assert.equal(calls, 1);
 });
 
-test('model timeout retries three anonymous rounds without alternate or video_tab requests', async () => {
+test('model timeout stays terminal without rotating identity or probing another route', async () => {
     let calls = 0, registrations = 0;
     const api = app(config => {
         calls++;
@@ -330,8 +348,8 @@ test('model timeout retries three anonymous rounds without alternate or video_ta
         throw { code: 'ETIMEDOUT' };
     });
     await assert.rejects(api.fetchAppPlayUrl('11'), { code: 'ETIMEDOUT' });
-    assert.equal(calls, 6);
-    assert.equal(registrations, 3);
+    assert.equal(calls, 2);
+    assert.equal(registrations, 1);
 });
 
 test('hongguo fixed and automatic lookup both preserve cancellation without another source request', async () => {

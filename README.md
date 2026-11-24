@@ -24,25 +24,41 @@
 
 ## 下载与安装
 
-**当前正式版：7.9**（内部`7.9.0`，桌面构建`7.9.1`）。本轮修复网络盘剧库进入发现页、打开剧集面板时同步扫盘导致主进程失去响应；统一发行双Mac、Windows x64与Linux x64 AppImage。
+**当前正式版：8.2**（内部`8.2.0`，桌面构建`8.2.1`）。
 
-7.9已于2026-11-21 23:33:28（Asia/Shanghai）公开并设Latest；23份正式附件、远端大小／SHA256及匿名下载入口均已核对，最终状态以[7.9记录](docs/release-7.9.md)为准。
+8.2 修改为“V8/当前 App 官方取源优先，失败后再走 SDK，最后才用网页或旧接口”。同时合入 SDK `--serve` 会话复用、批量多分集取源，并修复 Electron 44.11.5 在 macOS hardened runtime 下的主程序、Renderer/GPU Helper 与 SDK helper entitlement。
 
-| 平台 | 7.9正式附件 | 验收状态 |
+macOS arm64 已通过普通双击、DMG 内启动和真实 V8 两集静音播放；双 Mac 已签名、公证、装订，Windows 与 Linux 最终包真实播放通过，23 份附件远端摘要和匿名入口均已核对。实际状态见[8.2记录](docs/release-8.2.md)。
+
+| 平台 | 8.2 正式附件 | 验收状态 |
 |---|---|---|
-| Apple芯片Mac，macOS 13+ | [DMG](https://github.com/jackotom/hongguo-drama/releases/download/v7.9/Hongguo-7.9-mac-arm64.dmg) | 已签名、公证、装订；最终包两集静音播放通过 |
-| Intel Mac，macOS 13+ | [DMG](https://github.com/jackotom/hongguo-drama/releases/download/v7.9/Hongguo-7.9-mac-x64.dmg) | 已签名、公证、装订；Rosetta启动通过，实体Intel未验 |
-| Windows x64 | [安装版](https://github.com/jackotom/hongguo-drama/releases/download/v7.9/hongguo-downloader-7.9-win-x64-setup.exe) · [便携EXE](https://github.com/jackotom/hongguo-drama/releases/download/v7.9/hongguo-downloader-7.9-win-x64.exe) · [便携ZIP](https://github.com/jackotom/hongguo-drama/releases/download/v7.9/hongguo-downloader-7.9-win-x64.zip) | EXE未签名；真实下载、播放及安装升级在GitHub Windows虚拟机通过 |
-| Linux x64 | [AppImage](https://github.com/jackotom/hongguo-drama/releases/download/v7.9/hongguo-downloader-7.9-linux-x64.AppImage) | 赋予执行权限后运行；两集真实静音播放通过 |
+| Apple芯片Mac，macOS 13+ | [DMG](https://github.com/jackotom/hongguo-drama/releases/download/v8.2/Hongguo-8.2-mac-arm64.dmg) | 普通启动、V8 两集、公证装订通过 |
+| Intel Mac，macOS 13+ | [DMG](https://github.com/jackotom/hongguo-drama/releases/download/v8.2/Hongguo-8.2-mac-x64.dmg) | Rosetta 启动与公证通过；实体 Intel 未验 |
+| Windows x64 | [安装版](https://github.com/jackotom/hongguo-drama/releases/download/v8.2/hongguo-downloader-8.2-win-x64-setup.exe) · [便携EXE](https://github.com/jackotom/hongguo-drama/releases/download/v8.2/hongguo-downloader-8.2-win-x64.exe) · [便携ZIP](https://github.com/jackotom/hongguo-drama/releases/download/v8.2/hongguo-downloader-8.2-win-x64.zip) | V8 两集、队列、播放和安装升级通过；EXE 未签名 |
+| Linux x64 | [AppImage](https://github.com/jackotom/hongguo-drama/releases/download/v8.2/hongguo-downloader-8.2-linux-x64.AppImage) | 最终 AppImage 两集真实静音播放通过 |
 
-[7.9发行页](https://github.com/jackotom/hongguo-drama/releases/tag/v7.9) · [SHA256](https://github.com/jackotom/hongguo-drama/releases/download/v7.9/SHA256SUMS.txt) · [精确源码](https://github.com/jackotom/hongguo-drama/releases/download/v7.9/hongguo-drama-7.9-source.zip)。实际状态见[7.9记录](docs/release-7.9.md)。上游部分网页片源仍可能404、只提供预览或超时，不保证所有内容永久可播。
+[8.2发行页](https://github.com/jackotom/hongguo-drama/releases/tag/v8.2) · [SHA256](https://github.com/jackotom/hongguo-drama/releases/download/v8.2/SHA256SUMS.txt) · [精确源码](https://github.com/jackotom/hongguo-drama/releases/download/v8.2/hongguo-drama-8.2-source.zip)。上游部分网页片源仍可能 404、仅预览、空响应或 CDN 超时，不保证所有内容永久可播。
 
 **Android手机APK／Android TV版：** 请前往 [N3urda/hongguoTV](https://github.com/N3urda/hongguoTV) 下载。该项目独立维护；版本、兼容性与测试状态以该项目发布页为准，不计入本项目的四平台附件或验收。
 
 <details>
+<summary>8.0 历史下载与发行说明</summary>
+
+8.0历史发行包与验收回执见[8.0发行页](https://github.com/jackotom/hongguo-drama/releases/tag/v8.0)及[8.0记录](docs/release-8.0.md)；历史签名、公证和平台验收不替代8.1结果。
+
+</details>
+
+<details>
+<summary>7.9 历史下载与发行说明</summary>
+
+7.9历史发行包与验收回执见[7.9发行页](https://github.com/jackotom/hongguo-drama/releases/tag/v7.9)及[7.9记录](docs/release-7.9.md)；历史签名、公证和平台验收不替代8.0结果。
+
+</details>
+
+<details>
 <summary>7.8 历史下载与发行说明</summary>
 
-7.8历史发行包与验收回执见[7.8发行页](https://github.com/jackotom/hongguo-drama/releases/tag/v7.8)及[7.8记录](docs/release-7.8.md)；历史签名、公证和平台验收不替代7.9结果。
+7.8历史发行包与验收回执见[7.8发行页](https://github.com/jackotom/hongguo-drama/releases/tag/v7.8)及[7.8记录](docs/release-7.8.md)；历史签名、公证和平台验收不替代8.0结果。
 
 </details>
 
@@ -259,7 +275,33 @@ Mac和Windows安装版保留应用内更新入口；完整6.4→6.5自动更新�
 3. 打开详情点「立即播放」，也可选择集数与清晰度加入下载队列。
 4. 下次从「我的剧库」或「观看记录」接着看；下载进度、失败重试和整剧合并在「下载管理」。
 
-## 7.9（正式发布）
+## 8.2（正式发布）
+
+- 新增 Windows x64 SDK v5 播放取源接入（`win32-x64/hongguo-sdk-playback.exe`、Windows 文件锁兼容、PE x64 打包与真实取源验收），与 macOS 共用 3 进程并发上限与前台播放优先。
+- Windows helper 使用无 CFG 的 PyInstaller bootloader，避免 Unicorn `longjmp` 被 Windows Control Flow Guard 拒绝后以 `0xC0000409` 崩溃。
+- 支持创作者合集详情与分集播放恢复；默认先请求当前 App V5/V8 官方入口，失败后再走 SDK，最后保留原有有界链路与官网公开兜底。
+- Android／TV 构建隔离桌面原生 SDK 模块，避免浏览器打包引入 Node 内置模块。
+- 合入 SDK `--serve` 会话复用与最多 8 集批量取源；保留旧 helper 单集回退、部分/全部取消和三进程上限。
+- Electron 升级到 44.11.5，并为 macOS 主程序、Renderer/GPU Helper 与 SDK helper 补齐 hardened runtime entitlements。
+- 2026-11-24 15:56:30（Asia/Shanghai）正式公开并设为 Latest；23 份附件、远端摘要和匿名入口通过。详见[8.2记录](docs/release-8.2.md)。
+
+## 8.1（正式发布）
+
+- 数字分集下载统一改为 SDK 优先；在线播放仍保留原 FIFO、身份轮换和 403/429 拒绝保护。
+- SDK 子进程最多同时运行 3 个；取消中的排队请求立即退出，在线播放和批量下载不再互相长时间占用。
+- 首次初始化先锁定匿名设备和固定 SDK 素材，避免并发下载抢写身份缓存。
+- #179 后续集不再只依赖公开 360P：Apple Silicon 与 Intel SDK 路径均能取得 1080P HEVC 模型。
+- 四平台附件、远端摘要与最终验收见[8.1记录](docs/release-8.1.md)。
+
+## 8.0（历史正式版）
+
+- App主接口、备用主机、单集模型、`video_tab`和旧接口全部返回空响应时，复用同一匿名身份完成有界探测，并改用官网播放器的完整公开兜底片源。
+- 自动在线播放和允许降级的下载可使用完整360P兜底；固定在线画质仍不会静默降级，下载管理会显示实际质量。
+- 匿名设备注册继续复用身份，并在最后一组消费者取消时关闭socket。
+- 弹幕中的`[笑哭]`、`[捂脸]`、`[爱慕]`、`[没看够]`等代码显示为彩色表情图片；未知代码保留原文。
+- 修复#179和#178；四平台23份附件、远端SHA256与Latest入口已核对。详见[8.0记录](docs/release-8.0.md)。
+
+## 7.9（历史正式版）
 
 - 发现页先读取内存角标，只对当前可见卡片逐部异步预热；首屏不再为每部剧拉取完整分集。
 - 剧集面板先批量拿轻量进度，再按剧异步补齐；分集列表改为异步扫描和异步签发本地播放地址。
@@ -976,7 +1018,7 @@ https://github.com/user-attachments/assets/b95f4f60-b57c-495f-a30e-62ac2b0bda11
 
 ## 版本与验证范围
 
-7.5为当前源码／发行目标，内部7.5.0、候选构建7.5.2。本轮明确只发行Mac双架构与Windows，TV和手机独立。实际签名、平台验收、附件摘要和限制以[7.5记录](docs/release-7.5.md)为准。
+7.5内部7.5.0、候选构建7.5.2，已按当时授权发行Mac双架构与Windows；TV和手机独立。实际签名、平台验收、附件摘要和限制以[7.5记录](docs/release-7.5.md)为准。
 
 7.2 TV开发补充包已于2026-11-13 16:08:18（Asia/Shanghai）追加公开，版本7.2／code70200，沿用公开6.6 TV签名证书；TV源码冻结`2aa068f496f78114389d94c41b83dde877b174ce`。新增APK、精确TV源码和独立SHA256清单三份附件，现共28份正式附件；原25份桌面／Docker附件与原v7.2标签不变。构建、签名连续性、Manifest／包内容、定向源码检查及三附件匿名完整下载摘要核对通过。**TV实机未测试，请用户自行测试；安装、启动、实际遥控、播放和覆盖升级均未验证。** 手机保持独立，本机正式应用未替换。详见[TV补充回执](docs/release-7.2-tv.md)。以下首发五平台记录保持。
 

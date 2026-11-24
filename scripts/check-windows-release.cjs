@@ -67,6 +67,10 @@ async function keyHandoff(key, code, expectedSource) {
   await evaluate(`(() => {
     const video = document.querySelector('video');
     const originalSource = video.currentSrc;
+    if (typeof window.__verificationNextFrame !== 'function') window.__verificationNextFrame = () => new Promise(resolve => {
+      const timer = setTimeout(() => { cancelAnimationFrame(frame); resolve(false); }, 100);
+      const frame = requestAnimationFrame(() => { clearTimeout(timer); resolve(true); });
+    });
     window.__keyHandoff = { key: ${JSON.stringify(key)}, trusted: false, ended: false, sourceChanged: false, nextPlaying: false, frames: 0, visibleFrames: 0, fullscreenLost: false };
     const result = window.__keyHandoff;
     const keydown = event => { if (event.key === result.key) result.trusted = event.isTrusted; };
@@ -157,11 +161,13 @@ async function realFootage(mediaDir, ffmpeg, ffprobe, dataFile) {
   const exe = path.join(packaged, pkg.build.productName + '.exe');
   const ffmpeg = path.join(packaged, 'resources/bin/ffmpeg.exe');
   const ffprobe = path.join(packaged, 'resources/bin/ffprobe.exe');
+  const sdkPlayback = path.join(packaged, 'resources/app.asar.unpacked/build/sdk-playback/win32-x64/hongguo-sdk-playback.exe');
   const mediaDir = path.join(temp, 'media');
   fs.mkdirSync(mediaDir);
   let samples = [];
-  for (const file of [exe, ffmpeg, ffprobe]) pe64(file);
-  result.checks.push('Portable payload: Electron/FFmpeg/FFprobe are PE x64');
+  for (const file of [exe, ffmpeg, ffprobe, sdkPlayback]) pe64(file);
+  result.sdkPlayback = { executable: path.basename(sdkPlayback), arch: 'x64', requiredSourceProvider: 'sdk' };
+  result.checks.push('Portable payload: Electron/FFmpeg/FFprobe/SDK playback helper are PE x64');
   // Real portable startup: copy the single-file EXE elsewhere, launch it without
   // --user-data-dir, then verify the running app reports the program-relative
   // configMode/dataDir and actually persists a setting into data/data.json.
@@ -447,6 +453,10 @@ async function realFootage(mediaDir, ffmpeg, ffprobe, dataFile) {
   const automaticHandoff = await evaluate(`(async () => {
     const video = document.querySelector('video');
     const originalSource = video.currentSrc;
+    if (typeof window.__verificationNextFrame !== 'function') window.__verificationNextFrame = () => new Promise(resolve => {
+      const timer = setTimeout(() => { cancelAnimationFrame(frame); resolve(false); }, 100);
+      const frame = requestAnimationFrame(() => { clearTimeout(timer); resolve(true); });
+    });
     const result = { ended: false, sourceChanged: false, nextPlaying: false, frames: 0, visibleFrames: 0, fullscreenLost: false };
     const ended = () => { result.ended = true; };
     video.addEventListener('ended', ended, { once: true });
